@@ -80,7 +80,7 @@ class Blur {
 
   segmentBodyInRealTime(idCanvas, sourceStream, callback) {
     this.isStop = false;
-    const canvas = document.getElementById(idCanvas);
+    const canvas = idCanvas;
     var stream = canvas.captureStream(fps);
     if (callback) {
       callback(stream);

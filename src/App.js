@@ -24,9 +24,10 @@ class App extends Component {
           console.error(e);
         }
       };
+      var canvas = document.createElement("CANVAS");
       Blur.isReady().then(res => {
         if (res) {
-          Blur.segmentBodyInRealTime("output", videoElement, execute);
+          Blur.segmentBodyInRealTime(canvas, videoElement, execute);
         }
       });
     })
@@ -56,8 +57,7 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <video id="video" width="200" height="100"></video>
-          <canvas id="output" width="200" height="100" hidden></canvas>
+          <video id="video" width="200" height="100" hidden></video>
           <video id="video2" width="200" height="100"></video>
         </header>
       </div>
