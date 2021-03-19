@@ -58,7 +58,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <video id="video" width="200" height="100" hidden></video>
-          <video id="video2" width="200" height="100"></video>
+          <video id="video2" width="200" height="500"></video>
         </header>
       </div>
     );
