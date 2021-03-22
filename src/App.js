@@ -18,11 +18,11 @@ class App extends Component {
       const execute = (stream) => {
         const video2 = document.getElementById("video2");
         video2.srcObject = stream;
-        try {
-          video2.play();
-        } catch (e) {
-          console.error(e);
-        }
+        video2.play().catch(err => {
+          console.log('err', err)
+        }).then(() => {
+
+        })
       };
       var canvas = document.createElement("CANVAS");
       Blur.isReady().then(res => {
@@ -46,10 +46,13 @@ class App extends Component {
     videoElement.onloadedmetadata = () => {
       videoElement.width = videoElement.videoWidth;
       videoElement.height = videoElement.videoHeight;
-      videoElement.play();
-      if (callback) {
-        callback();
-      }
+      videoElement.play().catch(err => {
+        console.log('err', err);
+      }).then(() => {
+        if (callback) {
+          callback();
+        }
+      })
     };
   }
 
