@@ -39,7 +39,6 @@ class App extends Component {
       facingMode: "environment",
     };
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
       video: videoConstraints,
     });
     videoElement.srcObject = stream;
