@@ -20,6 +20,11 @@ class App extends Component {
         video2.srcObject = stream;
         video2.play().catch(err => {
           console.log('err', err)
+          video2.play().catch(err => {
+            console.log('err', err)
+          }).then(() => {
+  
+          })
         }).then(() => {
 
         })
@@ -47,6 +52,13 @@ class App extends Component {
       videoElement.height = videoElement.videoHeight;
       videoElement.play().catch(err => {
         console.log('err', err);
+        videoElement.play().catch(err => {
+          console.log('err', err);
+        }).then(() => {
+          if (callback) {
+            callback();
+          }
+        })
       }).then(() => {
         if (callback) {
           callback();
