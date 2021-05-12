@@ -6,6 +6,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     Blur.init();
+    this.video = null;
   }
 
   componentDidUpdate(prevProps) {
@@ -14,7 +15,7 @@ class App extends Component {
 
   componentDidMount() {
     this.setupCamera(() => {
-      const videoElement = document.getElementById("video");
+      const videoElement = this.video;
       const execute = (stream) => {
         const video2 = document.getElementById("video2");
         video2.srcObject = stream;
@@ -39,7 +40,10 @@ class App extends Component {
   }
 
   async setupCamera(callback) {
-    const videoElement = document.getElementById("video");
+    if (!this.video) {
+      this.video = document.createElement("video")
+    }
+    const videoElement = this.video;
     const videoConstraints = {
       facingMode: "environment",
     };
@@ -50,6 +54,8 @@ class App extends Component {
     videoElement.onloadedmetadata = () => {
       videoElement.width = videoElement.videoWidth;
       videoElement.height = videoElement.videoHeight;
+      console.log('videoElement.videoWidth', videoElement.videoWidth);
+      console.log('videoElement.videoWidth', videoElement.videoHeight);
       videoElement.play().catch(err => {
         console.log('err', err);
         videoElement.play().catch(err => {
@@ -71,7 +77,6 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <video id="video" width="200" height="100" hidden></video>
           <video id="video2" width="200" height="500"></video>
         </header>
       </div>

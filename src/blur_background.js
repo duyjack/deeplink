@@ -1,120 +1,170 @@
-import "@tensorflow/tfjs-backend-webgl";
-import * as bodyPix from "@tensorflow-models/body-pix";
+import {
+  generateDefaultGoogleMeetSegmentationTFLiteParams,
+  generateGoogleMeetSegmentationTFLiteDefaultConfig,
+  GoogleMeetSegmentationTFLiteWorkerManager,
+} from "@dannadori/googlemeet-segmentation-tflite-worker-js";
 
-const architecture = "MobileNetV1"; // ResNet50 MobileNetV1
-const outputStride = 16; // 16 32
-const multiplier = 1; // 1
-const quantBytes = 2; // 1 2 4
-
-const internalResolution = "low"; // low medium high full
-const segmentationThreshold = 0.7; // from 0 to 1
-const maxDetections = 20; // from 1 to 20
-const scoreThreshold = 0.33; // from 0 to 1
-const nmsRadius = 20; // from 1 to 30
-
-const backgroundBlurAmount = 3; // from 1 to 20
-const edgeBlurAmount = 3; // from 0 to 20
-
-const flipHorizontally = false;
-
+let renderRequestId = null;
 const fps = 25;
-
 class Blur {
   constructor() {
     this.state = {
       video: null,
       stream: null,
-      net: null,
+      manager: null,
+      params: null,
+      config: null,
       videoConstraints: {},
+      image: document.createElement("img"),
     };
+    this.processOnLocal = true;
+    this.modelPath = "/tflite/segm_lite_v509.tflite";
+    this.enableSIMD = false;
+    this.kernelSize = 0;
+    this.useSoftmax = true;
+    this.usePadding = false;
+    this.threshold = 0.1;
+    this.useSIMD = false;
     this.isStop = true;
   }
 
   async init() {
-    this.state.net = await bodyPix.load({
-      architecture: architecture,
-      outputStride: outputStride,
-      multiplier: multiplier,
-      quantBytes: quantBytes,
-    });
+    const m = new GoogleMeetSegmentationTFLiteWorkerManager();
+    const c = generateGoogleMeetSegmentationTFLiteDefaultConfig();
+    c.processOnLocal = this.processOnLocal;
+    c.modelPath = this.modelPath;
+    c.enableSIMD = false;
+    await m.init(c);
+
+    const p = generateDefaultGoogleMeetSegmentationTFLiteParams();
+    p.processWidth = 96;
+    p.processHeight = 160;
+    p.kernelSize = this.kernelSize;
+    p.useSoftmax = this.useSoftmax;
+    p.usePadding = this.usePadding;
+    p.threshold = this.threshold;
+    p.useSIMD = this.useSIMD;
+
+    this.state.manager = m;
+    this.state.config = c;
+    this.state.params = p;
+    this.isStop = false;
     return true;
+  }
+
+  async isReady() {
+    if (this.state.manager != null) {
+      return true;
+    }
+    return await this.init();
   }
 
   stop() {
     this.isStop = true;
   }
 
-  async isReady() {
-    if (this.state.net != null) {
-      return true;
-    }
-    return this.init();
+  start() {
+    this.isStop = false;
   }
 
   async _estimateSegmentation(sourceStream) {
-    this.state.video = sourceStream;
-    // return await this.state.net.segmentPerson(this.state.video, {
-    //   internalResolution: internalResolution,
-    //   segmentationThreshold: segmentationThreshold,
-    //   maxDetections: maxDetections,
-    //   scoreThreshold: scoreThreshold,
-    //   nmsRadius: nmsRadius,
-    // });
-    const canvas = await this.state.net.segmentPerson(this.state.video, {
-      flipHorizontal: flipHorizontally,
-      internalResolution: internalResolution,
-      segmentationThreshold: segmentationThreshold,
-      maxDetections: maxDetections,
-      scoreThreshold: scoreThreshold,
-      nmsRadius: nmsRadius,
-      minKeypointScore: 0.3,
-      refineSteps: 10
-    });
-    if (canvas.length && canvas.length > 0) {
-      //console.log('canvas.length ', canvas.length);
-      //console.log('canvas[0] ', canvas[0].pose);
-      return canvas[0];
-    }
-    return canvas;
+    const result = await this.state.manager.predict(
+      sourceStream,
+      this.state.params
+    );
+    console.log("result", JSON.stringify(result));
+    return result;
   }
 
-  segmentBodyInRealTime(idCanvas, sourceStream, callback) {
-    this.isStop = false;
-    const canvas = idCanvas;
-    var stream = canvas.captureStream(fps);
-    if (callback) {
-      callback(stream);
-    }
+  segmentBodyInRealTime(canvas, sourceStream, callback) {
     const _this = this;
-    const bodySegmentationFrame = async () => {
-      const multiPersonSegmentation = await _this._estimateSegmentation(
-        sourceStream
-      );
-      if (multiPersonSegmentation) {
-        bodyPix.drawBokehEffect(
-          canvas,
-          sourceStream,
-          multiPersonSegmentation,
-          backgroundBlurAmount,
-          edgeBlurAmount,
-          flipHorizontally
-        );
+    try {
+      const tmp = document.createElement("canvas");
+      tmp.hidden = true;
+      const front = document.createElement("canvas");
+      front.hidden = true;
+      const srcCache = document.createElement("canvas");
+      srcCache.hidden = true;
+      var stream = canvas.captureStream(fps);
+      if (callback) {
+        callback(stream);
       }
-      // End monitoring code for frames per second
-
-      requestAnimationFrame(bodySegmentationFrame);
-    };
-    if (sourceStream.readyState > 3) {
-      if (!this.isStop) {
-        bodySegmentationFrame();
-      }
-    } else {
-      sourceStream.onloadedmetadata = () => {
-        if (!this.isStop) {
-          bodySegmentationFrame();
+      const bodySegmentationFrame = async () => {
+        if (this.isStop) {
+          cancelAnimationFrame(renderRequestId);
+          return;
         }
+        if (sourceStream) {
+          const prediction = await _this._estimateSegmentation(sourceStream);
+          console.log('prediction', prediction.length);
+          // console.log(multiPersonSegmentation);
+          const res = new ImageData(
+            this.state.params.processWidth,
+            this.state.params.processHeight
+          );
+          console.log('ImageData', this.state.params.processWidth, this.state.params.processHeight)
+          for (
+            let i = 0;
+            i <
+            this.state.params.processWidth * this.state.params.processHeight;
+            i++
+          ) {
+            res.data[i * 4 + 0] = prediction[i];
+            res.data[i * 4 + 1] = prediction[i];
+            res.data[i * 4 + 2] = prediction[i];
+            res.data[i * 4 + 3] = prediction[i];
+          }
+          tmp.width = this.state.params.processWidth;
+          tmp.height = this.state.params.processHeight;
+          tmp.getContext("2d").putImageData(res, 0, 0);
+
+          // 前景の透過処理
+          const frontCtx = front.getContext("2d");
+          frontCtx.clearRect(0, 0, front.width, front.height);
+          frontCtx.drawImage(tmp, 0, 0, front.width, front.height);
+          frontCtx.globalCompositeOperation = "source-atop";
+          frontCtx.drawImage(sourceStream, 0, 0, front.width, front.height);
+          frontCtx.globalCompositeOperation = "source-over";
+
+          // 最終書き込み
+          const dstCtx = canvas.getContext("2d");
+          //// クリア or 背景描画
+          dstCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+          //// light Wrapping
+          dstCtx.filter = `blur(7px)`;
+          dstCtx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
+          dstCtx.filter = "none";
+
+          // 前景書き込み
+          dstCtx.drawImage(front, 0, 0, canvas.width, canvas.height);
+        }
+        // End monitoring code for frames per second
+        renderRequestId = requestAnimationFrame(bodySegmentationFrame);
+      };
+      if (sourceStream && sourceStream.readyState > 3 && !this.isStop) {
+        bodySegmentationFrame();
+      } else if (sourceStream && !this.isStop) {
+        sourceStream.onloadedmetadata = () => {
+          bodySegmentationFrame();
+        };
       }
+    } catch (error) {
+      throw error;
     }
+  }
+
+  setBackgroundImage(backgroundPath) {
+    if (backgroundPath != "none") {
+      this.state.image.setAttribute("src", backgroundPath);
+    } else {
+      this.state.image.removeAttribute("src");
+    }
+  }
+
+  haveBackgroundImage() {
+    if (this.state.image.src != "") return true;
+    return false;
   }
 }
 
