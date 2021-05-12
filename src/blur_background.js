@@ -18,7 +18,7 @@ class Blur {
       image: document.createElement("img"),
     };
     this.processOnLocal = true;
-    this.modelPath = "/tflite/segm_lite_v509.tflite";
+    this.modelPath = "/tflite/segm_lite_v681.tflite";
     this.enableSIMD = false;
     this.kernelSize = 0;
     this.useSoftmax = true;
@@ -68,89 +68,88 @@ class Blur {
   }
 
   async _estimateSegmentation(sourceStream) {
-    const result = await this.state.manager.predict(
-      sourceStream,
-      this.state.params
-    );
-    console.log("result", JSON.stringify(result));
+    const result = await this.state.manager.predict(sourceStream, this.state.params);
     return result;
   }
 
   segmentBodyInRealTime(canvas, sourceStream, callback) {
     const _this = this;
-    try {
-      const tmp = document.createElement("canvas");
-      tmp.hidden = true;
-      const front = document.createElement("canvas");
-      front.hidden = true;
-      const srcCache = document.createElement("canvas");
-      srcCache.hidden = true;
-      var stream = canvas.captureStream(fps);
-      if (callback) {
-        callback(stream);
+    const tmp = document.createElement("canvas");
+    tmp.hidden = true;
+    const front = document.createElement("canvas");
+    front.hidden = true;
+    // const srcCache = document.createElement("canvas");
+    // srcCache.hidden = true;
+    var stream = canvas.captureStream(fps);
+    if (callback) {
+      //callback(sourceStream.srcObject);
+      callback(stream);
+    }
+    const bodySegmentationFrame = async () => {
+      if (this.isStop) {
+        cancelAnimationFrame(renderRequestId);
+        return;
       }
-      const bodySegmentationFrame = async () => {
-        if (this.isStop) {
-          cancelAnimationFrame(renderRequestId);
-          return;
+      if (sourceStream) {
+        const prediction = await _this._estimateSegmentation(sourceStream);
+        // console.log(multiPersonSegmentation);
+        const res = new ImageData(
+          this.state.params.processWidth,
+          this.state.params.processHeight
+        );
+        console.log('ImageData', this.state.params.processWidth, this.state.params.processHeight)
+        for (
+          let i = 0;
+          i < this.state.params.processWidth * this.state.params.processHeight;
+          i++
+        ) {
+          res.data[i * 4 + 0] = prediction[i];
+          res.data[i * 4 + 1] = prediction[i];
+          res.data[i * 4 + 2] = prediction[i];
+          res.data[i * 4 + 3] = prediction[i];
         }
-        if (sourceStream) {
-          const prediction = await _this._estimateSegmentation(sourceStream);
-          console.log('prediction', prediction.length);
-          // console.log(multiPersonSegmentation);
-          const res = new ImageData(
-            this.state.params.processWidth,
-            this.state.params.processHeight
-          );
-          console.log('ImageData', this.state.params.processWidth, this.state.params.processHeight)
-          for (
-            let i = 0;
-            i <
-            this.state.params.processWidth * this.state.params.processHeight;
-            i++
-          ) {
-            res.data[i * 4 + 0] = prediction[i];
-            res.data[i * 4 + 1] = prediction[i];
-            res.data[i * 4 + 2] = prediction[i];
-            res.data[i * 4 + 3] = prediction[i];
-          }
-          tmp.width = this.state.params.processWidth;
-          tmp.height = this.state.params.processHeight;
-          tmp.getContext("2d").putImageData(res, 0, 0);
+        tmp.width = this.state.params.processWidth;
+        tmp.height = this.state.params.processHeight;
+        tmp.getContext("2d").putImageData(res, 0, 0);
 
-          // 前景の透過処理
-          const frontCtx = front.getContext("2d");
-          frontCtx.clearRect(0, 0, front.width, front.height);
-          frontCtx.drawImage(tmp, 0, 0, front.width, front.height);
-          frontCtx.globalCompositeOperation = "source-atop";
-          frontCtx.drawImage(sourceStream, 0, 0, front.width, front.height);
-          frontCtx.globalCompositeOperation = "source-over";
+        // 前景の透過処理
+        const frontCtx = front.getContext("2d");
+        frontCtx.clearRect(0, 0, front.width, front.height);
+        frontCtx.drawImage(tmp, 0, 0, front.width, front.height);
+        frontCtx.globalCompositeOperation = "source-atop";
+        frontCtx.drawImage(sourceStream, 0, 0, front.width, front.height);
+        frontCtx.globalCompositeOperation = "source-over";
 
-          // 最終書き込み
-          const dstCtx = canvas.getContext("2d");
-          //// クリア or 背景描画
-          dstCtx.fillRect(0, 0, canvas.width, canvas.height);
+        // 最終書き込み
+        const dstCtx = canvas.getContext("2d");
+        //// クリア or 背景描画
+        dstCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-          //// light Wrapping
-          dstCtx.filter = `blur(7px)`;
-          dstCtx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
-          dstCtx.filter = "none";
+        //// light Wrapping
+        dstCtx.filter = `blur(7px)`;
+        dstCtx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
+        dstCtx.filter = "none";
 
-          // 前景書き込み
-          dstCtx.drawImage(front, 0, 0, canvas.width, canvas.height);
-        }
-        // End monitoring code for frames per second
-        renderRequestId = requestAnimationFrame(bodySegmentationFrame);
+        // 前景書き込み
+        dstCtx.drawImage(front, 0, 0, canvas.width, canvas.height);
+      }
+      // End monitoring code for frames per second
+      renderRequestId = requestAnimationFrame(bodySegmentationFrame);
+    };
+    if (sourceStream && sourceStream.readyState > 3 && !this.isStop) {
+      bodySegmentationFrame()
+        .then()
+        .catch((err) => {
+          console.log("err", err);
+        });
+    } else if (sourceStream && !this.isStop) {
+      sourceStream.onloadedmetadata = () => {
+        bodySegmentationFrame()
+          .then()
+          .catch((err) => {
+            console.log("err", err);
+          });
       };
-      if (sourceStream && sourceStream.readyState > 3 && !this.isStop) {
-        bodySegmentationFrame();
-      } else if (sourceStream && !this.isStop) {
-        sourceStream.onloadedmetadata = () => {
-          bodySegmentationFrame();
-        };
-      }
-    } catch (error) {
-      throw error;
     }
   }
 
