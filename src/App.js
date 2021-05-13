@@ -51,11 +51,11 @@ class App extends Component {
     }
     video1.pause();
     video1.srcObject = await createStream();
-    video1.load();
+    video1.play();
     setTimeout(async () => {
       video2.pause();
       video2.srcObject = await createStream();
-      video2.load();
+      video2.play();
     }, 2000)
   }
 
