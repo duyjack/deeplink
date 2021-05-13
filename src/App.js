@@ -1,11 +1,11 @@
 import "./App.css";
 import { Component } from "react";
-import Blur from "./blur_background";
+//import Blur from "./blur_background";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    Blur.init();
+    //Blur.init();
     this.video = null;
   }
 
@@ -14,29 +14,48 @@ class App extends Component {
   }
 
   componentDidMount() {
-    alert(/iPad|iPhone|iPod/.test(navigator.platform))
-    this.setupCamera(() => {
-      const videoElement = this.video;
-      const execute = (stream) => {
-        const video2 = document.getElementById("video2");
-        video2.srcObject = stream;
-        video2.play().catch(err => {
-          console.log('err', err)
-          video2.play().catch(err => {
-            console.log('err', err)
-          }).then(() => {
+    this.testtIOS();
+    // alert(/iPad|iPhone|iPod/.test(navigator.platform))
+    // this.setupCamera(() => {
+    //   const videoElement = this.video;
+    //   const execute = (stream) => {
+    //     const video2 = document.getElementById("video2");
+    //     video2.srcObject = stream;
+    //     video2.play().catch(err => {
+    //       console.log('err', err)
+    //       video2.play().catch(err => {
+    //         console.log('err', err)
+    //       }).then(() => {
   
-          })
-        }).then(() => {
+    //       })
+    //     }).then(() => {
 
-        })
-      };
-      var canvas = document.createElement("CANVAS");
-      Blur.isReady().then(res => {
-        if (res) {
-          Blur.segmentBodyInRealTime(canvas, videoElement, execute);
-        }
-      });
+    //     })
+    //   };
+    //   var canvas = document.createElement("CANVAS");
+    //   Blur.isReady().then(res => {
+    //     if (res) {
+    //       Blur.segmentBodyInRealTime(canvas, videoElement, execute);
+    //     }
+    //   });
+    // })
+  }
+
+  async testtIOS() {
+    const video1 = document.getElementById("video1");
+    const video2 = document.getElementById("video2");
+    const constraints = { video: {}, audio: false };
+    const createStream = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      return stream;
+    }
+    video1.pause();
+    video1.srcObject = await createStream();
+    video1.load();
+    setTimeout(() => {
+      video2.pause();
+      video2.srcObject = await createStream();
+      video2.load();
     })
   }
 
@@ -78,6 +97,7 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
+          <video id="video1" width="200" height="500"></video>
           <video id="video2" width="200" height="500"></video>
         </header>
       </div>
