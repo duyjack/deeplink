@@ -14,6 +14,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    alert(/iPad|iPhone|iPod/.test(navigator.platform))
     this.setupCamera(() => {
       const videoElement = this.video;
       const execute = (stream) => {
