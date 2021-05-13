@@ -56,7 +56,7 @@ class App extends Component {
       video2.pause();
       video2.srcObject = await createStream();
       video2.load();
-    })
+    }, 2000)
   }
 
   async setupCamera(callback) {
