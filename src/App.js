@@ -44,7 +44,7 @@ class App extends Component {
   async testtIOS() {
     const video1 = document.getElementById("video1");
     const video2 = document.getElementById("video2");
-    const constraints = { video: {}, audio: false };
+    const constraints = { audio: false };
     const createStream = async () => {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       return stream;
