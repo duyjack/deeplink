@@ -1,5 +1,6 @@
 import "./App.css";
 import { Component } from "react";
+import browser from 'browser-detect';
 import Blur from "./blur_background";
 
 class App extends Component {
@@ -14,6 +15,8 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const result = browser();
+    alert(JSON.stringify(result));
     this.setupCamera(() => {
       const videoElement = this.video;
       const execute = (stream) => {
