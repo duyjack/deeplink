@@ -104,12 +104,27 @@ class App extends Component {
     // window.location.href = 'https://google.com';
   }
 
+  onClick1() {
+    window.location.href = 'gomeet://gomeeting.vnpt.vn?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
+    // window.location.href = 'https://google.com';
+  }
+
+  onClick2() {
+    window.location.href = 'https://google.com';
+  }
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <button onClick={this.onClick.bind(this)}>
-            Click ME
+            Click ME GoMeet
+          </button>
+          <button onClick={this.onClick1.bind(this)}>
+            Click ME https
+          </button>
+          <button onClick={this.onClick2.bind(this)}>
+            Click ME google
           </button>
         </header>
       </div>
