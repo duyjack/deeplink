@@ -100,7 +100,7 @@ class App extends Component {
   // }
 
   onClick() {
-    window.location.href = 'https://gomeeting.vnpt.vn?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
+    window.location.href = 'gomeet://gomeeting.vnpt.vn?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
     // window.location.href = 'https://google.com';
   }
 
