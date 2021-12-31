@@ -100,12 +100,12 @@ class App extends Component {
   // }
 
   onClick() {
-    window.location.href = 'gomeet://econference.devitkv2.com?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
+    window.location.href = 'gomeet://gomeeting.vnpt.vn?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
     // window.location.href = 'https://google.com';
   }
 
   onClick1() {
-    window.location.href = 'https://econference.devitkv2.com?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
+    window.location.href = 'https://gomeeting.vnpt.vn?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
     // window.location.href = 'https://google.com';
   }
 
@@ -114,7 +114,7 @@ class App extends Component {
   }
 
   onClick3() {
-    window.location.href = 'https://econference.devitkv2.com/';
+    window.location.href = 'https://gomeeting.vnpt.vn/';
   }
 
   render() {
