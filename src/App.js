@@ -111,11 +111,11 @@ class App extends Component {
   // }
 
   componentDidMount() {
-    this.latency.initConnection();
+    // this.latency.initConnection();
   }
 
   componentWillUnmount() {
-    this.latency.stopConnection();
+    // this.latency.stopConnection();
   }
 
   onClick() {
