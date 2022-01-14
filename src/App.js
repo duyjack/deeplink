@@ -112,10 +112,31 @@ class App extends Component {
 
   componentDidMount() {
     // this.latency.initConnection();
+    setUserAgent(
+      document.querySelector('iframe').contentWindow, 
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36'
+  );
   }
 
   componentWillUnmount() {
     // this.latency.stopConnection();
+  }
+
+  setUserAgent(window, userAgent) {
+    if (window.navigator.userAgent != userAgent) {
+      var userAgentProp = {
+        get: function() {
+          return userAgent;
+        }
+      };
+      try {
+        Object.defineProperty(window.navigator, 'userAgent', userAgentProp);
+      } catch (e) {
+        window.navigator = Object.create(navigator, {
+          userAgent: userAgentProp
+        });
+      }
+    }
   }
 
   onClick() {
