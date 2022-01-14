@@ -161,7 +161,7 @@ class App extends Component {
     return (
       <div className="App">
         {/* <header className="App-header"> */}
-        <iframe src="https://gomesainterb03.vnpt.vn/bigbluebutton/api/join?fullName=User+7546714&meetingID=random-7859808&password=ap&redirect=true&checksum=278f9316a75c30271af96449bfc1e0686f891649" title="W3Schools Free Online Web Tutorials"></iframe>
+        <iframe width="200" height="200" src="https://gomesainterb03.vnpt.vn/bigbluebutton/api/join?fullName=User+7546714&meetingID=random-7859808&password=ap&redirect=true&checksum=278f9316a75c30271af96449bfc1e0686f891649" title="W3Schools Free Online Web Tutorials"></iframe>
           {/* <button onClick={this.onClick.bind(this)}>
             Click ME GoMeet
           </button>
