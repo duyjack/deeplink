@@ -2,12 +2,23 @@ import "./App.css";
 import { Component } from "react";
 import browser from 'browser-detect';
 import Blur from "./blur_background";
+import Ping from "ping.js";
+import Latency from './latency';
 
 class App extends Component {
   constructor(props) {
     super(props);
     // Blur.init();
     // this.video = null;
+    this.p = new Ping();
+    this.begin = new Date();
+    this.rtt = [];
+    this.imgs = [
+        'http://myserver.com/foo.gif',
+        'http://myserver.com/bar.gif'
+        // etc.
+    ];
+    this.latency = new Latency();
   }
 
   // componentDidUpdate(prevProps) {
@@ -99,6 +110,14 @@ class App extends Component {
   //   };
   // }
 
+  componentDidMount() {
+    this.latency.initConnection();
+  }
+
+  componentWillUnmount() {
+    this.latency.stopConnection();
+  }
+
   onClick() {
     window.location.href = 'gomeet://gomeeting.vnpt.vn?url=https://econference.devitkv2.com/app/#/join-meeting/AGgv%2BW%2Fb4awoZaBXL0njGGuF6SntjnIzgzUQVKxNTrBzLNanqMhSZ1%2FTXVYofCKG';
     // window.location.href = 'https://google.com';
@@ -120,8 +139,9 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <button onClick={this.onClick.bind(this)}>
+        {/* <header className="App-header"> */}
+        <iframe src="https://gomesainterb03.vnpt.vn/bigbluebutton/api/join?fullName=User+7546714&meetingID=random-7859808&password=ap&redirect=true&checksum=278f9316a75c30271af96449bfc1e0686f891649" title="W3Schools Free Online Web Tutorials"></iframe>
+          {/* <button onClick={this.onClick.bind(this)}>
             Click ME GoMeet
           </button>
           <button onClick={this.onClick1.bind(this)}>
@@ -132,8 +152,8 @@ class App extends Component {
           </button>
           <button onClick={this.onClick3.bind(this)}>
             Click ME GoMeeting home
-          </button>
-        </header>
+          </button> */}
+        {/* </header> */}
       </div>
     );
   }
