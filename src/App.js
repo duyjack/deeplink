@@ -35,7 +35,7 @@ class App extends Component {
   }
 
   onClick1() {
-    window.location.href = 'gomeet://gomeeting.vnpt.vn/?url=gomeet://gomeeting.vnpt.vn/?url=https://gomeeting.vnpt.vn/app/#/join/8f6064636896cc9c?accessCode=B3NEOC&fullName=Canh';
+    window.location.href = 'gomeet://gomeeting.vnpt.vn/?url=https://gomeeting.vnpt.vn/app/#/join/9fce62ab40c74d7f?accessCode=P1AFAM&fullName=Vu%20Duc%20%20Canh';
     // window.location.href = 'https://google.com';
   }
 
