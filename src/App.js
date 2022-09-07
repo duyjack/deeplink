@@ -1,69 +1,63 @@
 import "./App.css";
 import { Component } from "react";
-import browser from 'browser-detect';
-import Blur from "./blur_background";
-import Ping from "ping.js";
-import Latency from './latency';
 
 class App extends Component {
   constructor(props) {
     super(props);
-    // Blur.init();
-    // this.video = null;
-    this.p = new Ping();
-    this.begin = new Date();
-    this.rtt = [];
-    this.imgs = [
-      'http://myserver.com/foo.gif',
-      'http://myserver.com/bar.gif'
-      // etc.
-    ];
-    this.latency = new Latency();
+    this.state = {
+      schema: '',
+      domain: '',
+      query: ''
+    }
+    this.handleChange = this.handleChange.bind(this);
+    this.handleChangeDomain = this.handleChangeDomain.bind(this);
+    this.handleChangeQuery = this.handleChangeQuery.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.converUri = this.converUri.bind(this);
   }
 
-  componentDidMount() {
-    // this.latency.initConnection();
+  handleChange(event) {
+    console.log('event', event);
+    this.setState({ schema: event.target.value });
   }
 
-  componentWillUnmount() {
-    // this.latency.stopConnection();
+  handleChangeDomain(event) {
+    this.setState({ domain: event.target.value });
   }
 
-  onClick() {
-    window.location.href = 'gomeet://gomeeting.vnpt.vn/?url=https://gomeeting.vnpt.vn/app/#/join/8f6064636896cc9c?accessCode=B3NEOC&fullName=Canh';
-    // window.location.href = 'https://google.com';
+  handleChangeQuery(event) {
+    this.setState({ query: event.target.value });
   }
 
-  onClick1() {
-    window.location.href = 'gomeet://gomeeting.vnpt.vn/?url=https://gomeeting.vnpt.vn/app/#/join/9fce62ab40c74d7f?accessCode=P1AFAM&fullName=Vu%20Duc%20%20Canh';
-    // window.location.href = 'https://google.com';
+  handleSubmit() {
+    // gomeetv3://gomeetv3.vnptit.vn?sessionToken=i61f9rG7KX9WhyB6EiDznBRxd1aOrrNT
+    window.location.href = this.converUri();
   }
 
-  onClick2() {
-    window.location.href = 'https://google.com/';
-  }
-
-  onClick3() {
-    window.location.href = 'https://gomeeting.vnpt.vn/';
+  converUri() {
+    const { schema, domain, query } = this.state;
+    return `${schema}://${domain}?${query}`;
   }
 
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <button onClick={this.onClick.bind(this)}>
-            Click ME GoMeet
-          </button>
-          <button onClick={this.onClick1.bind(this)}>
-            Click ME encode
-          </button>
-          <button onClick={this.onClick2.bind(this)}>
-            Click ME google
-          </button>
-          <button onClick={this.onClick3.bind(this)}>
-            Click ME GoMeeting home
-          </button>
-        </header>
+        <div style={{ flexDirection: 'column', display: "flex" }} >
+          <label>
+            schema:
+            <input type="text" value={this.state.schema} onChange={this.handleChange} ></input>
+          </label>
+          <label>
+            domain:
+            <input type="text" value={this.state.domain} onChange={this.handleChangeDomain} />
+          </label>
+          <label>
+            query:
+            <input type="text" value={this.state.query} onChange={this.handleChangeQuery} />
+          </label>
+          <div>Link: {this.converUri()}</div>
+          <button onClick={this.handleSubmit}>Open app</button>
+        </div>
       </div>
     );
   }
