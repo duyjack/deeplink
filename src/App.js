@@ -44,19 +44,19 @@ class App extends Component {
       <div className="App">
         <div style={{ flexDirection: 'column', display: "flex" }} >
           <label>
-            schema:
-            <input type="text" value={this.state.schema} onChange={this.handleChange} ></input>
+            schema: 
+            <input className='input' type="text" value={this.state.schema} onChange={this.handleChange} ></input>
           </label>
           <label>
-            domain:
-            <input type="text" value={this.state.domain} onChange={this.handleChangeDomain} />
+            domain: 
+            <input className='input' type="text" value={this.state.domain} onChange={this.handleChangeDomain} />
           </label>
           <label>
-            query:
-            <input type="text" value={this.state.query} onChange={this.handleChangeQuery} />
+            query: 
+            <input className='input' type="text" value={this.state.query} onChange={this.handleChangeQuery} />
           </label>
           <div>Link: {this.converUri()}</div>
-          <button onClick={this.handleSubmit}>Open app</button>
+          <button className="button" onClick={this.handleSubmit}>Open app</button>
         </div>
       </div>
     );
